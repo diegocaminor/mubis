@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 // 1. Importar modulo para conectar el componente con el store
 import { connect } from 'react-redux';
+import Header from '../components/Header';
 // 2. Importar las acciones a ejecutar en el store a través de este componente
 import { registerRequest } from '../actions';
 
@@ -36,6 +37,8 @@ const Register = (props) => {
   };
 
   return (
+    <>
+    <Header isRegister />
     <section className='register'>
       <section className='register__container'>
         <h2 className='register__title'>Regístrate</h2>
@@ -69,6 +72,7 @@ const Register = (props) => {
         </p>
       </section>
     </section>
+    </>
   );
 };
 
