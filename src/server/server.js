@@ -21,6 +21,7 @@ if(ENV === "development") {
 }
 
 app.get("*", (req, res) => {
+  console.log("loco");
   res.send(`
     <!DOCTYPE html>
     <html>
