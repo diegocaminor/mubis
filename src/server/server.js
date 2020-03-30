@@ -2,6 +2,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import webpack from 'webpack';
+import helmet from 'helmet';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { Provider } from 'react-redux';
@@ -27,7 +28,11 @@ if (ENV === 'development') {
 
   app.use(webpackDevMiddleware(compiler, serverConfig));
   app.use(webpackHotMiddleware(compiler));
-
+} else {
+  app.use(express.static(`${__dirname}/public`));
+  app.use(helmet());
+  app.user(helmet.permittedCrossDomainPolicies());
+  app.disable('x-powered-by'); // al deshabilitar x-powered-by no hay forma de que el navegador pueda saber desde donde no estamos conectando y así evitar ataques dirigidos
 }
 
 const setResponse = (html, preloadedState) => {
