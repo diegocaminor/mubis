@@ -31,7 +31,7 @@ if (ENV === 'development') {
 } else {
   app.use(express.static(`${__dirname}/public`));
   app.use(helmet());
-  app.user(helmet.permittedCrossDomainPolicies());
+  app.use(helmet.permittedCrossDomainPolicies());
   app.disable('x-powered-by'); // al deshabilitar x-powered-by no hay forma de que el navegador pueda saber desde donde no estamos conectando y así evitar ataques dirigidos
 }
 
@@ -72,5 +72,5 @@ app.get('*', renderApp);
 
 app.listen(PORT, (err) => {
   if (err) console.log(err);
-  else console.log('Server running on port 3000');
+  else console.log(`Server running on port ${PORT}`);
 });
