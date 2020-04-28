@@ -14,10 +14,36 @@ import reducer from "../frontend/reducers";
 import initialState from "../frontend/initialState";
 import getManifest from "./getManifest"; // lee el archivo manifest.json
 
+import cookieParser from require("cookie-parser");
+import boom from require("@hapi/boom");
+import passport from require("passport");
+import session from require("express-session");
+import axios from require("axios");
+
 dotenv.config();
 
 const { ENV, PORT } = process.env;
 const app = express();
+
+// body parser
+app.use(express.json());
+app.use(cookieParser());
+app.use(session({ secret: config.sessionSecret })); // esto es requerido debido a que la librería de twitter para iniciar sesión exige que tengamos una sesión activa, cabe resaltar que twitter para la autenticación de usuarios maneja el protocolo OAuth1.0
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Basic strategy
+require("./utils/auth/strategies/basic");
+// OAuth strategy
+require("./utils/auth/strategies/oauth");
+// Google strategy
+require("./utils/auth/strategies/google");
+// Twitter strategy
+require("./utils/auth/strategies/twitter");
+// Linkedin strategy
+require("./utils/auth/strategies/linkedin");
+// Facebook strategy
+require("./utils/auth/strategies/facebook");
 
 if (ENV === "development") {
   console.log("Development config");
@@ -90,6 +116,48 @@ const renderApp = (req, res) => {
 
   res.send(setResponse(html, preloadedState, req.hashManifest)); // le pasamos el preloadedState al setResponse
 };
+
+app.post("/auth/sign-in", async function (req, res, next) {
+  passport.authenticate("basic", function (error, data) {
+    try {
+      if (error || !data) {
+        next(boom.unauthorized());
+      }
+      const { token, user } = data;
+
+      req.login(data, { session: false }, async function (error) {
+        if (error) {
+          next(error);
+        }
+
+        res.cookie("token", token, {
+          httpOnly: !config.dev,
+          secure: !config.dev,
+        });
+
+        res.status(200).json(user);
+      });
+    } catch (error) {
+      next(error);
+    }
+  })(req, res, next);
+});
+
+app.post("/auth/sign-up", async function (req, res, next) {
+  const { body: user } = req;
+
+  try {
+    await axios({
+      url: `${config.apiUrl}/api/auth/sign-up`,
+      method: "post",
+      data: user,
+    });
+
+    res.status(201).json({ message: "user created" });
+  } catch (error) {
+    next(error);
+  }
+});
 
 app.get("*", renderApp);
 

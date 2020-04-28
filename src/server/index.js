@@ -1,5 +1,5 @@
 require("ignore-styles"); // le dice al servidor que ignore todos los llamados a clases de css porque no hay forma de que se pinte algo con css desde el lado del servidor
-
+require("@babel/polyfill"); // necesario para poder trabajar con async y await
 require("@babel/register")({
   presets: ["@babel/preset-env", "@babel/preset-react"],
 });
