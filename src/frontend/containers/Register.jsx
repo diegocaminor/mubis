@@ -1,5 +1,6 @@
 // Indico que este componente va a tener estado propio
 import React, { useState } from "react";
+import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 // 1. Importar modulo para conectar el componente con el store
 import { connect } from "react-redux";

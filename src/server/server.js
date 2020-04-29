@@ -14,11 +14,11 @@ import reducer from "../frontend/reducers";
 import initialState from "../frontend/initialState";
 import getManifest from "./getManifest"; // lee el archivo manifest.json
 
-import cookieParser from require("cookie-parser");
-import boom from require("@hapi/boom");
-import passport from require("passport");
-import session from require("express-session");
-import axios from require("axios");
+import cookieParser from "cookie-parser";
+import boom from "@hapi/boom";
+import passport from "passport";
+import session from "express-session";
+import axios from "axios";
 
 const { config } = require("./config");
 dotenv.config();
@@ -152,16 +152,16 @@ app.post("/auth/sign-up", async function (req, res, next) {
       url: `${config.apiUrl}/api/auth/sign-up`,
       method: "post",
       data: {
-        'email': user.email,
-        'name': user.name,
-        'user': user.password
+        email: user.email,
+        name: user.name,
+        user: user.password,
       },
     });
 
     res.status(201).json({
       name: req.body.name,
       email: req.body.email,
-      id: userData.data.id
+      id: userData.data.id,
     });
   } catch (error) {
     next(error);
