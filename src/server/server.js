@@ -154,10 +154,9 @@ app.post("/auth/sign-up", async function (req, res, next) {
       data: {
         email: user.email,
         name: user.name,
-        user: user.password,
+        password: user.password,
       },
     });
-
     res.status(201).json({
       name: req.body.name,
       email: req.body.email,
