@@ -104,22 +104,28 @@ const setResponse = (html, preloadedState, manifest) => {
 // evento que solo exista desde el lado del cliente para ser cargado desde el lado del cliente.
 // Es decir una vez que enviamos un string renderizado a cliente, no será necesario renderizar la vista nuevamente, simplemente hidratamos la vista con los eventos que necesita.
 
-const renderApp = (req, res) => {
+const renderApp = async (req, res) => {
   let initialState;
-  const { email, name, id } = req.cookies;
+  const { token, email, name, id } = req.cookies;
 
-  if (id) {
+  try {
+    let moviesList = await axios({
+      url: `${config.apiUrl}/api/movies`,
+      headers: { Authorization: `Bearer ${token}` },
+      method: "get",
+    });
+    moviesList = moviesList.data.data;
     initialState = {
-      user: {
-        email,
-        name,
-        id,
-      },
+      user: { id, email, name },
       myList: [],
-      trends: [],
-      originals: [],
+      trends: moviesList.filter(
+        (movie) => movie.contentRating === "PG" && movie._id
+      ),
+      originals: moviesList.filter(
+        (movie) => movie.contentRating === "G" && movie._id
+      ),
     };
-  } else {
+  } catch (err) {
     initialState = {
       user: {},
       myList: [],
@@ -156,8 +162,8 @@ app.post("/auth/sign-in", async function (req, res, next) {
         }
 
         res.cookie("token", token, {
-          httpOnly: !config.dev,
-          secure: !config.dev,
+          httpOnly: !config.env,
+          secure: !config.env,
         });
 
         res.status(200).json(user);
