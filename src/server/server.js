@@ -11,7 +11,7 @@ import { renderRoutes } from "react-router-config"; // renderRoutes recibe un ar
 import { StaticRouter } from "react-router-dom";
 import serverRoutes from "../frontend/routes/serverRoutes"; // rutas de nuestro servidor
 import reducer from "../frontend/reducers";
-import initialState from "../frontend/initialState";
+// import initialState from "../frontend/initialState";
 import getManifest from "./getManifest"; // lee el archivo manifest.json
 
 import cookieParser from "cookie-parser";
@@ -105,12 +105,36 @@ const setResponse = (html, preloadedState, manifest) => {
 // Es decir una vez que enviamos un string renderizado a cliente, no será necesario renderizar la vista nuevamente, simplemente hidratamos la vista con los eventos que necesita.
 
 const renderApp = (req, res) => {
+  let initialState;
+  const { email, name, id } = req.cookies;
+
+  if (id) {
+    initialState = {
+      user: {
+        email,
+        name,
+        id,
+      },
+      myList: [],
+      trends: [],
+      originals: [],
+    };
+  } else {
+    initialState = {
+      user: {},
+      myList: [],
+      trends: [],
+      originals: [],
+    };
+  }
+
   const store = createStore(reducer, initialState);
   const preloadedState = store.getState(); // estado precargado para evitar llamar la misma librería en cliente, se estaría enviando initialState
+  const isLogged = initialState.user.id;
   const html = renderToString(
     <Provider store={store}>
       <StaticRouter location={req.url} context={{}}>
-        {renderRoutes(serverRoutes)}
+        {renderRoutes(serverRoutes(isLogged))}
       </StaticRouter>
     </Provider>
   );
