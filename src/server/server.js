@@ -115,9 +115,28 @@ const renderApp = async (req, res) => {
       method: "get",
     });
     moviesList = moviesList.data.data;
+
+    let userMovies = await axios({
+      url: `${config.apiUrl}/api/user-movies/?userId=${id}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      method: "get",
+    });
+    userMovies = userMovies.data.data;
+
+    let myList = [];
+    userMovies.forEach((userMovie) => {
+      moviesList.forEach((movie) => {
+        if (movie._id === userMovie.movieId) {
+          myList.push(movie);
+        }
+      });
+    });
+
     initialState = {
       user: { id, email, name },
-      myList: [],
+      myList,
       trends: moviesList.filter(
         (movie) => movie.contentRating === "PG" && movie._id
       ),
@@ -192,6 +211,86 @@ app.post("/auth/sign-up", async function (req, res, next) {
       email: req.body.email,
       id: userData.data.id,
     });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/user-movies", async function (req, res, next) {
+  try {
+    const { body: userMovie } = req;
+    const { token, id } = req.cookies;
+
+    let userMovies = await axios({
+      url: `${config.apiUrl}/api/user-movies/?userId=${id}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      method: "get",
+    });
+    userMovies = userMovies.data.data;
+
+    let reqUserMovie = userMovies.find(function (reqUserMovie) {
+      if (reqUserMovie.movieId === userMovie.movieId) return reqUserMovie;
+    });
+
+    let movieExists = false;
+    if (reqUserMovie == undefined || "") {
+      var { data, status } = await axios({
+        url: `${config.apiUrl}/api/user-movies`,
+        headers: { Authorization: `Bearer ${token}` },
+        method: "post",
+        data: userMovie,
+      });
+    } else {
+      movieExists = true;
+    }
+
+    if (!movieExists) {
+      if (status !== 201) {
+        return next(boom.badImplementation());
+      }
+    }
+
+    res.status(201).json(data);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.delete("/user-movies/:movieId", async function (req, res, next) {
+  try {
+    const { movieId } = req.params;
+    const { token, id } = req.cookies;
+
+    let userMovies = await axios({
+      url: `${config.apiUrl}/api/user-movies/?userId=${id}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      method: "get",
+    });
+    userMovies = userMovies.data.data;
+
+    let userMovie = userMovies.find(function (userMovie) {
+      if (userMovie.movieId === movieId) return userMovie;
+    });
+    let userMovieId = userMovie._id;
+
+    if (userMovieId == undefined || "") {
+      throw new Error("Este video no se encuentra en tus favoritos");
+    }
+    const { data, status } = await axios({
+      url: `${config.apiUrl}/api/user-movies/${userMovieId}`,
+      headers: { Authorization: `Bearer ${token}` },
+      method: "delete",
+    });
+
+    if (status !== 200) {
+      return next(boom.badImplementation());
+    }
+
+    res.status(200).json(data);
   } catch (error) {
     next(error);
   }

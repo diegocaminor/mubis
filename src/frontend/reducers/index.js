@@ -1,17 +1,21 @@
 const reducer = (state, action) => {
   switch (action.type) {
     case "SET_FAVORITE":
-      return {
-        ...state,
-        myList: [...state.myList, action.payload],
-      };
+      const myListHasFavoriteMovie = state.myList.some(
+        (items) => items._id == action.payload._id
+      );
+      if (!myListHasFavoriteMovie)
+        return {
+          ...state,
+          myList: [...state.myList, action.payload],
+        };
+      return state;
     case "DELETE_FAVORITE":
       return {
         ...state,
-        myList: state.myList.filter((items) => items.id !== action.payload),
+        myList: state.myList.filter((items) => items._id !== action.payload),
       };
     case "LOGIN_REQUEST":
-      console.log("TU PTA MADRE");
       return {
         ...state,
         user: action.payload,

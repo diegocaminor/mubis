@@ -1,4 +1,5 @@
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export const setFavorite = (payload) => ({
   type: "SET_FAVORITE",
@@ -70,6 +71,45 @@ export const loginUser = ({ email, password }, redirectUrl) => {
         window.location.href = redirectUrl;
       })
       .catch((err) => dispatch(setError(err)));
+  };
+};
+
+export const addMovieUserList = (userId, movie) => {
+  return (dispatch) => {
+    const userMovie = {
+      userId,
+      movieId: movie._id,
+    };
+    axios
+      .post("/user-movies", userMovie)
+      .then(({ data }) => {
+        if (typeof data === "object") {
+          const userMovieId = data.data; // id de la película añadida a favoritos
+          dispatch(setFavorite(movie));
+          Swal.fire("Película añadida", data.message, "success");
+        } else {
+          Swal.fire("Ya se encuentra añadida", "", "warning");
+        }
+      })
+      .catch((error) => {
+        alert(error);
+        dispatch(setError(error));
+      });
+  };
+};
+
+export const removeMovieUserList = (movieId) => {
+  return (dispatch) => {
+    axios
+      .delete(`/user-movies/${movieId}`)
+      .then(({ data }) => {
+        dispatch(deleteFavorite(movieId));
+        Swal.fire("Película removida", data.message, "info");
+      })
+      .catch((error) => {
+        alert(error);
+        dispatch(setError(error));
+      });
   };
 };
 
