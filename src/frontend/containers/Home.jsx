@@ -14,7 +14,7 @@ const Home = ({ myList, trends, originals }) => {
       <Header />
       <Search isHome />
       {myList.length > 0 && (
-        <Categories title="Mi lista">
+        <Categories title="Mi lista Mubis">
           <Carousel>
             {myList.map((item) => (
               <CarouselItem key={item.id} {...item} isList />
@@ -31,7 +31,7 @@ const Home = ({ myList, trends, originals }) => {
         </Carousel>
       </Categories>
 
-      <Categories title="Originales de Plazi Video">
+      <Categories title="Originales de Mubis!">
         <Carousel>
           {originals.map((item) => (
             <CarouselItem key={item.id} {...item} />

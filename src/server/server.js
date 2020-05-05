@@ -1,5 +1,6 @@
 /* eslint-disable global-require */
 import express from "express";
+import cors from "cors";
 import dotenv from "dotenv";
 import webpack from "webpack";
 import helmet from "helmet";
@@ -25,6 +26,8 @@ dotenv.config();
 
 const { ENV, PORT } = process.env;
 const app = express();
+
+app.use(cors());
 
 // body parser
 app.use(express.json());
@@ -216,6 +219,128 @@ app.post("/auth/sign-up", async function (req, res, next) {
   }
 });
 
+// Autenticación con redes sociales
+//
+// Autenticación con passport-oauth
+app.get(
+  "/auth/google-oauth",
+  passport.authenticate("google-oauth", {
+    scope: ["email", "profile", "openid"],
+  })
+);
+
+// Autenticación con Google
+app.get(
+  "/auth/google-oauth/callback",
+  passport.authenticate("google-oauth", { session: false }),
+  function (req, res, next) {
+    if (!req.user) {
+      next(boom.unauthorized());
+    }
+    const { token, ...user } = req.user;
+    res.cookie("token", token, {
+      httpOnly: !config.dev,
+      secure: !config.dev,
+    });
+
+    res.status(200).json(user);
+  }
+);
+
+// Autenticación con Google usando OpenID Connect
+app.get(
+  "/auth/google",
+  passport.authenticate("google", {
+    scope: ["email", "profile", "openid"],
+  })
+);
+
+app.get(
+  "/auth/google/callback",
+  passport.authenticate("google", { session: false }),
+  function (req, res, next) {
+    if (!req.user) {
+      next(boom.unauthorized());
+    }
+    const { token, ...user } = req.user;
+    res.cookie("token", token, {
+      httpOnly: !config.dev,
+      secure: !config.dev,
+    });
+
+    res.status(200).json(user);
+  }
+);
+
+// Autenticación con Twitter
+app.get("/auth/twitter", passport.authenticate("twitter"));
+
+app.get(
+  "/auth/twitter/callback",
+  passport.authenticate("twitter", { session: false }),
+  function (req, res, next) {
+    if (!req.user) {
+      next(boom.unauthorized());
+    }
+    const { token, ...user } = req.user;
+    res.cookie("token", token, {
+      httpOnly: !config.dev, // solo para producción
+      secure: !config.dev, // solo para producción
+    });
+
+    res.status(200).json(user);
+  }
+);
+
+// Autenticación con LinkedIn
+app.get(
+  "/auth/linkedin",
+  passport.authenticate("linkedin", { state: "SOME STATE" })
+);
+
+app.get(
+  "/auth/linkedin/callback",
+  passport.authenticate("linkedin", { session: false }),
+  function (req, res, next) {
+    if (!req.user) {
+      next(boom.unauthorized());
+    }
+    const { token, ...user } = req.user;
+    res.cookie("token", token, {
+      httpOnly: !config.dev,
+      secure: !config.dev,
+    });
+
+    res.status(200).json(user);
+  }
+);
+
+// Autenticación con Facebook
+app.get(
+  "/auth/facebook",
+  passport.authenticate("facebook", { scope: ["email"] })
+);
+
+app.get(
+  "/auth/facebook/callback",
+  passport.authenticate("facebook", { session: false }),
+  function (req, res, next) {
+    if (!req.user) {
+      next(boom.unauthorized());
+    }
+
+    const { token, ...user } = req.user;
+
+    res.cookie("token", token, {
+      httpOnly: !config.dev,
+      secure: !config.dev,
+    });
+
+    res.status(200).json(user);
+  }
+);
+
+// Api movies
 app.post("/user-movies", async function (req, res, next) {
   try {
     const { body: userMovie } = req;

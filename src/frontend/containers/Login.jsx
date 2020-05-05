@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { loginUser } from "../actions";
+import { loginUser, signProvider } from "../actions";
 import Header from "../components/Header";
 import "../assets/styles/components/Login.scss";
 import googleIcon from "../assets/static/google-icon.png";
 import twitterIcon from "../assets/static/twitter-icon.png";
+import facebookIcon from "../assets/static/facebook-icon.svg";
+import linkedinIcon from "../assets/static/linkedin-icon.svg";
 
 const Login = (props) => {
   const [form, setValues] = useState({
@@ -23,6 +25,10 @@ const Login = (props) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     props.loginUser(form, "/");
+  };
+
+  const handleSignProvider = (socialMedia) => {
+    props.signProvider(socialMedia, "/");
   };
 
   return (
@@ -58,11 +64,23 @@ const Login = (props) => {
             </div>
           </form>
           <section className="login__container--social-media">
-            <div>
+            <div onClick={() => handleSignProvider("/auth/google")}>
               <img src={googleIcon} /> Inicia sesión con Google
             </div>
-            <div>
+            <div onClick={() => handleSignProvider("/auth/twitter")}>
               <img src={twitterIcon} /> Inicia sesión con Twitter
+            </div>
+            <div
+              onClick={() => handleSignProvider("/auth/facebook")}
+              className="svg-icon"
+            >
+              <img src={facebookIcon} /> Inicia sesión con Facebook
+            </div>
+            <div
+              onClick={() => handleSignProvider("/auth/linkedin")}
+              className="svg-icon"
+            >
+              <img src={linkedinIcon} /> Inicia sesión con Linkedin
             </div>
           </section>
           <p className="login__container--register">
@@ -76,6 +94,7 @@ const Login = (props) => {
 
 const mapDispatchToProps = {
   loginUser,
+  signProvider,
 };
 
 export default connect(null, mapDispatchToProps)(Login);

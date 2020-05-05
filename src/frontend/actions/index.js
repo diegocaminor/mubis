@@ -64,7 +64,25 @@ export const loginUser = ({ email, password }, redirectUrl) => {
         document.cookie = `email=${data.email}`;
         document.cookie = `name=${data.name}`;
         document.cookie = `id=${data.id}`;
-        // document.cookie = `token=${data.token}`;
+        dispatch(loginRequest(data));
+      })
+      .then(() => {
+        window.location.href = redirectUrl;
+      })
+      .catch((err) => dispatch(setError(err)));
+  };
+};
+
+export const signProvider = (socialMedia, redirectUrl) => {
+  return (dispatch) => {
+    axios({
+      url: socialMedia,
+      method: "get",
+    })
+      .then(({ data }) => {
+        document.cookie = `email=${data.email}`;
+        document.cookie = `name=${data.name}`;
+        document.cookie = `id=${data.id}`;
         dispatch(loginRequest(data));
       })
       .then(() => {
