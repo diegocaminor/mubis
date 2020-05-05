@@ -11,14 +11,14 @@ const Header = () => (
     <a href="/">Hecho por Diego Camino</a>
     <a
       className="svg-icon"
-      href="/https://github.com/diegocaminor"
+      href="https://github.com/diegocaminor"
       target="_blank"
     >
       <img src={githubIcon} />
     </a>
     <a
       className="svg-icon"
-      href="/https://www.linkedin.com/in/DiegoCaminoR/"
+      href="https://www.linkedin.com/in/DiegoCaminoR/"
       target="_blank"
     >
       <img src={linkedinIcon} />
