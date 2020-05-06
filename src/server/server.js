@@ -139,6 +139,7 @@ const renderApp = async (req, res) => {
 
     initialState = {
       user: { id, email, name },
+      playing: {},
       myList,
       trends: moviesList.filter(
         (movie) => movie.contentRating === "PG" && movie._id
