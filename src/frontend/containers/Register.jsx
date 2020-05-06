@@ -1,21 +1,21 @@
 // Indico que este componente va a tener estado propio
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 // 1. Importar modulo para conectar el componente con el store
-import { connect } from 'react-redux';
-import Header from '../components/Header';
-// 2. Importar las acciones a ejecutar en el store a través de este componente
-import { registerRequest } from '../actions';
+import { connect } from "react-redux";
+import Header from "../components/Header";
+import { registerUser } from "../actions";
 
-import '../assets/styles/components/Register.scss';
+import "../assets/styles/components/Register.scss";
 
 // 5. El componente ejecuta acciones contra el store, por tanto activo sus props
 const Register = (props) => {
   // Declaro el estado inicial del componente (la propiedad form representa toda el formulario, por ello le paso un objeto con el valor de incio de cada uno de sus campos)
   const [form, setValues] = useState({
-    name: '',
-    email: '',
-    password: '',
+    name: "",
+    email: "",
+    password: "",
   });
 
   // Funcion controladora de evento que se dispara cuando uno de los campos de formulario cambia su valor. (onChange)
@@ -31,54 +31,58 @@ const Register = (props) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     // 6. Disparamos la acción registrar el usuario en el store
-    props.registerRequest(form);
-    // Redireccionar a otra ruta.
-    props.history.push('/');
+    props.registerUser(form, "/login");
   };
 
   return (
     <>
-    <Header isRegister />
-    <section className='register'>
-      <section className='register__container'>
-        <h2 className='register__title'>Regístrate</h2>
-        <form className='register__container--form' onSubmit={handleSubmit}>
-          <input
-            name='name'
-            type='text'
-            className='input'
-            placeholder='Nombre'
-            onChange={handleInput}
-          />
-          <input
-            name='email'
-            type='text'
-            className='input'
-            placeholder='Correo Electrónico'
-            onChange={handleInput}
-          />
-          <input
-            name='password'
-            type='password'
-            className='input'
-            placeholder='Contraseña'
-            onChange={handleInput}
-          />
-          <button type='submit' className='button'>Registrarme</button>
-        </form>
-        <p className='register__container--login'>
-          Ya tienes una cuenta.
-          <Link to='/login'>Inicia sesión</Link>
-        </p>
+      <Header isRegister />
+      <section className="register">
+        <section className="register__container">
+          <h2 className="register__title">Regístrate</h2>
+          <form className="register__container--form" onSubmit={handleSubmit}>
+            <input
+              name="name"
+              type="text"
+              className="input"
+              placeholder="Nombre"
+              onChange={handleInput}
+            />
+            <input
+              name="email"
+              type="text"
+              className="input"
+              placeholder="Correo Electrónico"
+              onChange={handleInput}
+            />
+            <input
+              name="password"
+              type="password"
+              className="input"
+              placeholder="Contraseña"
+              onChange={handleInput}
+            />
+            <button type="submit" className="button">
+              Registrarme
+            </button>
+          </form>
+          <p className="register__container--login">
+            Ya tienes una cuenta.
+            <Link to="/login">Inicia sesión</Link>
+          </p>
+        </section>
       </section>
-    </section>
     </>
   );
 };
 
 // 4. Establecer que acciones llevará a cabo este componente en el store
 const mapDispatchToProps = {
-  registerRequest,
+  registerUser,
+};
+
+Register.propTypes = {
+  registerUser: PropTypes.func,
 };
 
 // 3. Conectar el componente con el store
