@@ -61,7 +61,7 @@ if (ENV === "development") {
   app.use(webpackHotMiddleware(compiler));
 } else {
   app.use((req, res, next) => {
-    if (!req.hashManifest) res.hashManifest = getManifest();
+    if (!req.hashManifest) req.hashManifest = getManifest();
     next();
   });
   app.use(express.static(`${__dirname}/public`)); // aquí se almacenarán todos los archivos que se generen dentro de nuestro budle de webpack
