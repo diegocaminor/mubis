@@ -47,6 +47,7 @@ const Register = (props) => {
               className="input"
               placeholder="Nombre"
               onChange={handleInput}
+              required
             />
             <input
               name="email"
@@ -54,6 +55,7 @@ const Register = (props) => {
               className="input"
               placeholder="Correo Electrónico"
               onChange={handleInput}
+              required
             />
             <input
               name="password"
@@ -61,6 +63,7 @@ const Register = (props) => {
               className="input"
               placeholder="Contraseña"
               onChange={handleInput}
+              required
             />
             <button type="submit" className="button">
               Registrarme

@@ -4,22 +4,13 @@ import cors from "cors";
 import dotenv from "dotenv";
 import webpack from "webpack";
 import helmet from "helmet";
-import React from "react";
-import { renderToString } from "react-dom/server"; // devuelve vista renderizada en un string
-import { Provider } from "react-redux";
-import { createStore } from "redux";
-import { renderRoutes } from "react-router-config"; // renderRoutes recibe un arreglo de rutas, y nos ayudará a poder renderizar toda nuestra aplicación
-import { StaticRouter } from "react-router-dom";
-import serverRoutes from "../frontend/routes/serverRoutes"; // rutas de nuestro servidor
-import reducer from "../frontend/reducers";
-// import initialState from "../frontend/initialState";
-import getManifest from "./getManifest"; // lee el archivo manifest.json
-
+import main from "./routes/main";
 import cookieParser from "cookie-parser";
 import boom from "@hapi/boom";
 import passport from "passport";
 import session from "express-session";
 import axios from "axios";
+import getManifest from "./getManifest"; // lee el archivo manifest.json
 
 const { config } = require("./config");
 dotenv.config();
@@ -71,105 +62,6 @@ if (ENV === "development") {
   // al deshabilitar x-powered-by no hay forma de que el navegador pueda saber desde donde no estamos conectando y así evitar ataques dirigidos a ciertos frameworks o librerías que estemos usando
   app.disable("x-powered-by");
 }
-
-// setReponse cargará el html, el estado inicial (initialState) de la aplicación para poder ser accedido desde cliente y el archivo manifest.json
-const setResponse = (html, preloadedState, manifest) => {
-  // esta función recibe el html y retorna el html definido en un string
-  const mainStyles = manifest ? manifest["main.css"] : "assets/app.css";
-  const mainBuild = manifest ? manifest["main.js"] : "assets/app.js";
-  const vendorBuild = manifest ? manifest["vendors.js"] : "assets/vendor.js";
-
-  return `
-  <!DOCTYPE html>
-  <html>
-    <head>
-      <link rel="stylesheet" href="${mainStyles}" type="text/css">
-      <title>Mubis</title>
-    </head>
-    <body>
-      <div id="app">${html}</div>
-      <script>
-        window.__PRELOADED_STATE__ = ${JSON.stringify(preloadedState).replace(
-          /</g,
-          "\\u003c"
-        )}
-      </script>
-      <script src="${mainBuild}" type="text/javascript"></script>
-      <script src="${vendorBuild}" type="text/javascript"></script>
-    </body>
-  </html>
-  `;
-};
-
-// El proceso fundamental de server side render(ssr) consta de 2 procesos:
-// el primero es rederizar a un string con renderToString
-// el segundo es recibir este string e hidratar todos los eventos necesarios como el onClick u onLoad o cualquier otro
-// evento que solo exista desde el lado del cliente para ser cargado desde el lado del cliente.
-// Es decir una vez que enviamos un string renderizado a cliente, no será necesario renderizar la vista nuevamente, simplemente hidratamos la vista con los eventos que necesita.
-
-const renderApp = async (req, res) => {
-  let initialState;
-  const { token, email, name, id } = req.cookies;
-
-  try {
-    let moviesList = await axios({
-      url: `${config.apiUrl}/api/movies`,
-      headers: { Authorization: `Bearer ${token}` },
-      method: "get",
-    });
-    moviesList = moviesList.data.data;
-
-    let userMovies = await axios({
-      url: `${config.apiUrl}/api/user-movies/?userId=${id}`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      method: "get",
-    });
-    userMovies = userMovies.data.data;
-
-    let myList = [];
-    userMovies.forEach((userMovie) => {
-      moviesList.forEach((movie) => {
-        if (movie._id === userMovie.movieId) {
-          myList.push(movie);
-        }
-      });
-    });
-
-    initialState = {
-      user: { id, email, name },
-      playing: {},
-      myList,
-      trends: moviesList.filter(
-        (movie) => movie.contentRating === "PG" && movie._id
-      ),
-      originals: moviesList.filter(
-        (movie) => movie.contentRating === "G" && movie._id
-      ),
-    };
-  } catch (err) {
-    initialState = {
-      user: {},
-      myList: [],
-      trends: [],
-      originals: [],
-    };
-  }
-
-  const store = createStore(reducer, initialState);
-  const preloadedState = store.getState(); // estado precargado para evitar llamar la misma librería en cliente, se estaría enviando initialState
-  const isLogged = initialState.user.id;
-  const html = renderToString(
-    <Provider store={store}>
-      <StaticRouter location={req.url} context={{}}>
-        {renderRoutes(serverRoutes(isLogged))}
-      </StaticRouter>
-    </Provider>
-  );
-
-  res.send(setResponse(html, preloadedState, req.hashManifest)); // le pasamos el preloadedState al setResponse
-};
 
 app.post("/auth/sign-in", async function (req, res, next) {
   passport.authenticate("basic", function (error, data) {
@@ -422,7 +314,7 @@ app.delete("/user-movies/:movieId", async function (req, res, next) {
   }
 });
 
-app.get("*", renderApp);
+app.get("*", main);
 
 app.listen(PORT, (err) => {
   if (err) console.log(err);
