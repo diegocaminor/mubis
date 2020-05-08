@@ -1,5 +1,4 @@
 import axios from "axios";
-import Swal from "sweetalert2";
 
 export const setFavorite = (payload) => ({
   type: "SET_FAVORITE",
@@ -92,40 +91,38 @@ export const signProvider = (socialMedia, redirectUrl) => {
   };
 };
 
-export const addMovieUserList = (userId, movie) => {
-  return (dispatch) => {
-    const userMovie = {
-      userId,
-      movieId: movie._id,
-    };
-    axios
-      .post("/user-movies", userMovie)
-      .then(({ data }) => {
-        if (typeof data === "object") {
-          const userMovieId = data.data; // id de la película añadida a favoritos
-          dispatch(setFavorite(movie));
-          Swal.fire("Película añadida", data.message, "success");
-        } else {
-          Swal.fire("Ya se encuentra añadida", "", "warning");
-        }
-      })
-      .catch((error) => {
-        alert(error);
-        dispatch(setError(error));
-      });
-  };
+export const addFavoriteMovie = (movie, cb) => (dispatch) => {
+  const movieId = movie._id;
+  axios({
+    url: "/user-movies",
+    method: "post",
+    data: { movieId },
+  })
+    .then(({ data }) => {
+      const { data: createdUserMovieId, movieExist } = data;
+
+      const message = movieExist
+        ? `${movie.title} ya está agregada a tus favoritos! 😊`
+        : `${movie.title} fue agregada a tus favoritos 😃`;
+
+      if (!movieExist) {
+        movie.userMovieId = createdUserMovieId;
+        dispatch(setFavorite(movie));
+      }
+      cb(movieExist, message);
+    })
+    .catch((err) => dispatch(setError(err)));
 };
 
-export const removeMovieUserList = (movieId) => {
+export const removeFavoriteMovie = (userMovieId, cb) => {
   return (dispatch) => {
     axios
-      .delete(`/user-movies/${movieId}`)
+      .delete(`/user-movies/${userMovieId}`)
       .then(({ data }) => {
-        dispatch(deleteFavorite(movieId));
-        Swal.fire("Película removida", data.message, "info");
+        dispatch(deleteFavorite(userMovieId));
+        cb("Película removida de tu lista... 😔");
       })
       .catch((error) => {
-        alert(error);
         dispatch(setError(error));
       });
   };

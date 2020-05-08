@@ -40,9 +40,10 @@ const main = async (req, res, next) => {
       userMovies = userMovies.data.data;
 
       let myList = [];
-      userMovies.forEach((userMovie) => {
-        moviesList.forEach((movie) => {
-          if (movie._id === userMovie.movieId) {
+      userMovies.filter((userMovie) => {
+        moviesList.filter((movie) => {
+          if (userMovie.userId === id && userMovie.movieId === movie._id) {
+            movie.userMovieId = userMovie._id;
             myList.push(movie);
           }
         });

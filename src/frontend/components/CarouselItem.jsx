@@ -2,14 +2,14 @@ import React from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { addMovieUserList, removeMovieUserList } from "../actions";
+import { addFavoriteMovie, removeFavoriteMovie } from "../actions";
 import "../assets/styles/components/CarouselItem.scss";
 import playIcon from "../assets/static/play-icon.png";
 import plusIcon from "../assets/static/plus-icon.png";
 import removeIcon from "../assets/static/remove-icon.png";
+import Swal from "sweetalert2";
 
 const CarouselItem = (props) => {
-  const userId = props.user.id;
   const {
     _id,
     id,
@@ -22,18 +22,29 @@ const CarouselItem = (props) => {
     isList,
   } = props;
   const handleSetFavorite = () => {
-    props.addMovieUserList(userId, {
-      _id,
-      id,
-      cover,
-      title,
-      year,
-      contentRating,
-      duration,
-    });
+    props.addFavoriteMovie(
+      {
+        _id,
+        id,
+        cover,
+        title,
+        year,
+        contentRating,
+        duration,
+      },
+      function (movieExist, message) {
+        if (!movieExist) {
+          Swal.fire(message, "", "success");
+        } else {
+          Swal.fire(message, "", "warning");
+        }
+      }
+    );
   };
   const handleDeleteFavorite = (movieId) => {
-    props.removeMovieUserList(movieId);
+    props.removeFavoriteMovie(movieId, function (message) {
+      Swal.fire(message, "", "info");
+    });
   };
   return (
     <div className="carousel-item">
@@ -52,7 +63,7 @@ const CarouselItem = (props) => {
               className="carousel-item__details--img"
               src={removeIcon}
               alt="Remove Icon"
-              onClick={() => handleDeleteFavorite(_id)}
+              onClick={() => handleDeleteFavorite(userMovieId)}
             />
           ) : (
             <img
@@ -80,15 +91,9 @@ CarouselItem.propTypes = {
   duration: PropTypes.number,
 };
 
-const mapStateToProps = (state) => {
-  return {
-    user: state.user,
-  };
-};
-
 const mapDispatchToProps = {
-  addMovieUserList,
-  removeMovieUserList,
+  addFavoriteMovie,
+  removeFavoriteMovie,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(CarouselItem);
+export default connect(null, mapDispatchToProps)(CarouselItem);

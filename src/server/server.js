@@ -236,50 +236,13 @@ app.get(
 // Api movies
 app.post("/user-movies", async function (req, res, next) {
   try {
-    const { body: userMovie } = req;
+    const { movieId } = req.body;
     const { token, id } = req.cookies;
 
-    let userMovies = await axios({
-      url: `${config.apiUrl}/api/user-movies/?userId=${id}`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      method: "get",
-    });
-    userMovies = userMovies.data.data;
-
-    let reqUserMovie = userMovies.find(function (reqUserMovie) {
-      if (reqUserMovie.movieId === userMovie.movieId) return reqUserMovie;
-    });
-
-    let movieExists = false;
-    if (reqUserMovie == undefined || "") {
-      var { data, status } = await axios({
-        url: `${config.apiUrl}/api/user-movies`,
-        headers: { Authorization: `Bearer ${token}` },
-        method: "post",
-        data: userMovie,
-      });
-    } else {
-      movieExists = true;
-    }
-
-    if (!movieExists) {
-      if (status !== 201) {
-        return next(boom.badImplementation());
-      }
-    }
-
-    res.status(201).json(data);
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.delete("/user-movies/:movieId", async function (req, res, next) {
-  try {
-    const { movieId } = req.params;
-    const { token, id } = req.cookies;
+    const userMovieData = {
+      userId: id,
+      movieId,
+    };
 
     let userMovies = await axios({
       url: `${config.apiUrl}/api/user-movies/?userId=${id}`,
@@ -291,24 +254,69 @@ app.delete("/user-movies/:movieId", async function (req, res, next) {
     userMovies = userMovies.data.data;
 
     let userMovie = userMovies.find(function (userMovie) {
-      if (userMovie.movieId === movieId) return userMovie;
-    });
-    let userMovieId = userMovie._id;
-
-    if (userMovieId == undefined || "") {
-      throw new Error("Este video no se encuentra en tus favoritos");
-    }
-    const { data, status } = await axios({
-      url: `${config.apiUrl}/api/user-movies/${userMovieId}`,
-      headers: { Authorization: `Bearer ${token}` },
-      method: "delete",
+      if (userMovie.movieId === movieId && userMovie.userId === id)
+        return userMovie;
     });
 
-    if (status !== 200) {
-      return next(boom.badImplementation());
-    }
+    if (userMovie) {
+      // si la película fue agregada, no se vuelve a agregar
+      const data = { movieExist: true };
+      res.status(200).json(data);
+    } else {
+      // sino, se agrega
+      const { data, status } = await axios({
+        url: `${config.apiUrl}/api/user-movies`,
+        headers: { Authorization: `Bearer ${token}` },
+        method: "post",
+        data: userMovieData,
+      });
+      data.movieExist = false;
 
-    res.status(200).json(data);
+      if (status !== 201) {
+        return next(boom.badImplementation());
+      }
+      res.status(201).json(data);
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.delete("/user-movies/:userMovieId", async function (req, res, next) {
+  try {
+    const { userMovieId } = req.params;
+    const { token, id } = req.cookies;
+
+    console.log("ELIMINAR");
+    console.log(userMovieId);
+    let userMovies = await axios({
+      url: `${config.apiUrl}/api/user-movies/?userId=${id}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      method: "get",
+    });
+    userMovies = userMovies.data.data;
+
+    let userMovie = userMovies.find(function (userMovie) {
+      if (userMovie._id === userMovieId) return userMovie;
+    });
+
+    if (userMovie) {
+      // si la película existe, se elimina
+      const { data, status } = await axios({
+        url: `${config.apiUrl}/api/user-movies/${userMovieId}`,
+        headers: { Authorization: `Bearer ${token}` },
+        method: "delete",
+      });
+
+      if (status !== 200) {
+        return next(boom.badImplementation());
+      }
+      res.status(200).json(data);
+    } else {
+      res.status(404).json();
+    }
   } catch (error) {
     next(error);
   }
