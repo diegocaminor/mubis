@@ -23,7 +23,16 @@ app.use(cors());
 // body parser
 app.use(express.json());
 app.use(cookieParser());
-app.use(session({ secret: config.sessionSecret })); // esto es requerido debido a que la librería de twitter para iniciar sesión exige que tengamos una sesión activa, cabe resaltar que twitter para la autenticación de usuarios maneja el protocolo OAuth1.0
+app.use(
+  session({
+    secret: config.sessionSecret,
+    resave: true,
+    saveUninitialized: true,
+    cookie: {
+      secure: !config.env,
+    },
+  })
+); // esto es requerido debido a que la librería de twitter para iniciar sesión exige que tengamos una sesión activa, cabe resaltar que twitter para la autenticación de usuarios maneja el protocolo OAuth1.0
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -132,8 +141,8 @@ app.get(
     }
     const { token, ...user } = req.user;
     res.cookie("token", token, {
-      httpOnly: !config.dev,
-      secure: !config.dev,
+      httpOnly: !config.env,
+      secure: !config.env,
     });
 
     res.status(200).json(user);
@@ -156,12 +165,16 @@ app.get(
       next(boom.unauthorized());
     }
     const { token, ...user } = req.user;
-    res.cookie("token", token, {
-      httpOnly: !config.dev,
-      secure: !config.dev,
-    });
+    const options = {
+      httpOnly: !config.env,
+      secure: !config.env,
+    };
+    res.cookie("token", token, options);
+    res.cookie("name", user.user.name, options);
+    res.cookie("email", user.user.email, options);
+    res.cookie("id", user.user.id, options);
 
-    res.status(200).json(user);
+    res.redirect("/");
   }
 );
 
@@ -176,12 +189,17 @@ app.get(
       next(boom.unauthorized());
     }
     const { token, ...user } = req.user;
-    res.cookie("token", token, {
-      httpOnly: !config.dev, // solo para producción
-      secure: !config.dev, // solo para producción
-    });
-
+    const options = {
+      httpOnly: !config.env,
+      secure: !config.env,
+    };
+    res.cookie("token", token, options);
+    res.cookie("name", user.user.name, options);
+    res.cookie("email", user.user.email, options);
+    res.cookie("id", user.user.id, options);
     res.status(200).json(user);
+
+    res.redirect("/");
   }
 );
 
@@ -199,12 +217,16 @@ app.get(
       next(boom.unauthorized());
     }
     const { token, ...user } = req.user;
-    res.cookie("token", token, {
-      httpOnly: !config.dev,
-      secure: !config.dev,
-    });
+    const options = {
+      httpOnly: !config.env,
+      secure: !config.env,
+    };
+    res.cookie("token", token, options);
+    res.cookie("name", user.user.name, options);
+    res.cookie("email", user.user.email, options);
+    res.cookie("id", user.user.id, options);
 
-    res.status(200).json(user);
+    res.redirect("/");
   }
 );
 
@@ -224,12 +246,16 @@ app.get(
 
     const { token, ...user } = req.user;
 
-    res.cookie("token", token, {
-      httpOnly: !config.dev,
-      secure: !config.dev,
-    });
+    const options = {
+      httpOnly: !config.env,
+      secure: !config.env,
+    };
+    res.cookie("token", token, options);
+    res.cookie("name", user.user.name, options);
+    res.cookie("email", user.user.email, options);
+    res.cookie("id", user.user.id, options);
 
-    res.status(200).json(user);
+    res.redirect("/");
   }
 );
 

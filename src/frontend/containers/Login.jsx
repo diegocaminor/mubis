@@ -66,24 +66,18 @@ const Login = (props) => {
             </div>
           </form>
           <section className="login__container--social-media">
-            <div onClick={() => handleSignProvider("/auth/google")}>
+            <a href="/auth/google">
               <img src={googleIcon} /> Inicia sesión con Google
-            </div>
-            <div onClick={() => handleSignProvider("/auth/twitter")}>
+            </a>
+            <a href="/auth/twitter">
               <img src={twitterIcon} /> Inicia sesión con Twitter
-            </div>
-            <div
-              onClick={() => handleSignProvider("/auth/facebook")}
-              className="svg-icon"
-            >
+            </a>
+            <a href="/auth/facebook" className="svg-icon">
               <img src={facebookIcon} /> Inicia sesión con Facebook
-            </div>
-            <div
-              onClick={() => handleSignProvider("/auth/linkedin")}
-              className="svg-icon"
-            >
+            </a>
+            <a href="/auth/twitter" className="svg-icon">
               <img src={linkedinIcon} /> Inicia sesión con Linkedin
-            </div>
+            </a>
           </section>
           <p className="login__container--register">
             No tienes ninguna cuenta <Link to="/register">Regístrate</Link>

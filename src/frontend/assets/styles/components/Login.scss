@@ -48,24 +48,26 @@
   text-decoration: underline;
 }
 
-.login__container--social-media > div {
+.login__container--social-media > a {
   align-items: center;
   display: flex;
   font-size: 14px;
   margin-bottom: 10px;
+  text-decoration: none;
+  color: white;
 }
 
-.login__container--social-media > div:hover {
+.login__container--social-media > a:hover {
   cursor: pointer;
-  color: blue;
+  text-decoration: underline;
 }
 
-.login__container--social-media > div > img {
+.login__container--social-media > a > img {
   margin-right: 10px;
   width: 30px;
 }
 
-.login__container--social-media > div.svg-icon > img {
+.login__container--social-media > a.svg-icon > img {
   margin-right: 20px;
   width: 20px;
   filter: invert(100%);
