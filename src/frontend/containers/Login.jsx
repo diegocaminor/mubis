@@ -75,7 +75,7 @@ const Login = (props) => {
             <a href="/auth/facebook" className="svg-icon">
               <img src={facebookIcon} /> Inicia sesión con Facebook
             </a>
-            <a href="/auth/twitter" className="svg-icon">
+            <a href="/auth/linkedin" className="svg-icon">
               <img src={linkedinIcon} /> Inicia sesión con Linkedin
             </a>
           </section>

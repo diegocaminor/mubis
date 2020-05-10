@@ -11,7 +11,7 @@ const Header = () => (
     <a href="/">Hecho por Diego Camino</a>
     <a
       className="svg-icon"
-      href="https://github.com/diegocaminor"
+      href="https://github.com/diegocaminor/mubis"
       target="_blank"
     >
       <img src={githubIcon} />
