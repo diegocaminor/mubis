@@ -2,6 +2,9 @@
 
 Single page application that simulates being a platform where you can watch different movies using microservices-based architecture, Backend for frontend(BFF) pattern.
 
+![](images/login-page.png)
+![](images/home-page.png)
+
 ## Installation
 
 Use the package manager [npm](https://www.npmjs.com/) to install all their dependencies.
