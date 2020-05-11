@@ -2,8 +2,8 @@
 
 Single page application that simulates being a platform where you can watch different movies using microservices-based architecture, Backend for frontend(BFF) pattern.
 
-![](images/login-page.png)
-![](images/home-page.png)
+![](demo-images/login-page.png)
+![](demo-images/home-page.png)
 
 ## Installation
 
